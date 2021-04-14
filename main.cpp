@@ -13,7 +13,8 @@
 
 # define MINO "Å°"
 # define WALL "Å†"
-# define SPACE "Å@"
+# define STATIC "Å°"
+# define SPACE "ÅE"
 
 # define DELETE_POINT (100)
 # define DROP_POINT (10)
@@ -173,22 +174,22 @@ void writeStage (void)
             switch (stage[i][j])
             {
                 case 0:
-                    std::cout << "ÅE";
+                    std::cout << SPACE;
                     break;
 
 
                 case 1:
-                    std::cout << "Å°";
+                    std::cout << MINO;
                     break;
 
                 
                 case 2:
-                    std::cout << "Å°";
+                    std::cout << STATIC;
                     break;
 
 
                 default:
-                    std::cout << "Å†";
+                    std::cout << WALL;
                     break;
 
             }
