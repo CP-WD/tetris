@@ -11,6 +11,10 @@
 # define HEIGHT (25) // 4+20+1
 # define WIDTH (12)  // 1+10+1
 
+# define MINO "■"
+# define WALL "□"
+# define SPACE "　"
+
 # define DELETE_POINT (100)
 # define DROP_POINT (10)
 
@@ -34,7 +38,7 @@ enum KIND_OF_MINO
 
 int randint (int min, int max); // 乱数と言いつつ一定の値（dekita）
 int landing (void);
-int operation (int kind);
+int operation (int kind); // 接地した後一回更新するまで固定しないてきな
 int landing (void);
 int deleteLine (void); // 消え方の挙動がおかしい(多分直った)
 void drop (void);
@@ -49,7 +53,7 @@ void changeStatic (void);
 void sleep (int s);
 void placeMino (int kind);
 int turnMino (void);
-int swapMino (int kind);
+int swapMino (int kind); // 一度目のスワップで次のミノの取得ができるといいかも
 
 
 
