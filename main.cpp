@@ -11,11 +11,14 @@
 # define HEIGHT (25) // 4+20+1
 # define WIDTH (12)  // 1+10+1
 
-# define SPEED (100)
 # define DELETE_POINT (100)
+# define DROP_POINT (10)
+
+# define SPEED (100)
 
 
 int stage[HEIGHT][WIDTH], next[7];
+int swap[4][4] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 int point = 0;
 
 enum KIND_OF_MINO
@@ -46,6 +49,7 @@ void changeStatic (void);
 void sleep (int s);
 void placeMino (int kind);
 int turnMino (void);
+int swapMino (int kind);
 
 
 
@@ -54,17 +58,21 @@ int main (void)
     srand(time(NULL));
     int end = 0;
 
+
     stageInit ();
     writeStage ();
     decisionNext ();
+
 
     while (1)
     {
         int count = 0;
 
+
         for (int i=0;i<7;i++)
         {
             end = operation (next[i]);
+
 
             for (int i=1;i<WIDTH-1;++i)
             {
@@ -75,12 +83,15 @@ int main (void)
                 }
             }
 
+
             for (int j=0;j<4;++j)
             {
                 count += deleteLine ();
             }
+
             point += pow(DELETE_POINT ,count);
         }
+        
         decisionNext ();
     }
 }
@@ -99,16 +110,20 @@ void stageInit (void)
                     stage[i][j] = 3;
                     break;
 
+
                 case WIDTH-1:
                     stage[i][j] = 3;
                     break;
+
                 
                 default:
                     stage[i][j] = 0;
                     break;
+
             }
         }
     }
+
 
     for (int j=0;j<WIDTH;++j)
     {
@@ -129,10 +144,12 @@ void decisionNext (void)
     int i, j, temp;
     int tempNumber[] = {0,1,2,3,4,5,6};
 
+
     for (i=0;i<7;++i)
     {
         temp = randint(0, 6-i);
         next[i] = tempNumber[temp];
+
 
         for (j=temp;j<6-i;++j)
         {
@@ -155,13 +172,16 @@ void writeStage (void)
                     std::cout << "・";
                     break;
 
+
                 case 1:
                     std::cout << "■";
                     break;
+
                 
                 case 2:
                     std::cout << "■";
                     break;
+
 
                 default:
                     std::cout << "□";
@@ -172,19 +192,6 @@ void writeStage (void)
         std::cout << std::endl;
     }
     std::cout << point << std::endl;
-}
-
-
-void writeStageNum (void)
-{
-    for (int i=0;i<HEIGHT;++i)
-    {
-        for (int j=0;j<WIDTH;++j)
-        {
-            std::cout << stage[i][j];
-        }
-        std::cout << std::endl;
-    }
 }
 
 
@@ -225,6 +232,7 @@ int moveMino (int dx, int dy)
 {
     int coordinate[8] = {0,0,0,0,0,0,0,0}, count = 0;
 
+
     for (int y=0;y<HEIGHT;++y)
     {
         for (int x=0;x<WIDTH;++x)
@@ -234,10 +242,12 @@ int moveMino (int dx, int dy)
 
                 coordinate[count] = y+dy;
                 coordinate[count+1] = x+dx;
+
                 count += 2;
             }
         }
     }
+
 
     for (int i=0;i<8;i+=2)
     {
@@ -247,12 +257,15 @@ int moveMino (int dx, int dy)
         }
     }
 
+
     oneToZero();
+
 
     stage[coordinate[0]][coordinate[1]] = 1;
     stage[coordinate[2]][coordinate[3]] = 1;
     stage[coordinate[4]][coordinate[5]] = 1;
     stage[coordinate[6]][coordinate[7]] = 1;
+
 
     return 0;
 }
@@ -316,6 +329,13 @@ int operation (int kind)
                 clear ();
                 writeStage ();
             }
+
+            else if (key == 32) //Space
+            {
+                swapMino(kind);
+                clear ();
+                writeStage ();
+            }
 		}
     }
     
@@ -330,26 +350,32 @@ void placeMino (int kind)
         case I_MINO:
             stage[4][4]=1, stage[4][5]=1, stage[4][6]=1, stage[4][7]=1;
             break;
+
         
         case O_MINO:
             stage[4][5]=1, stage[4][6]=1, stage[5][5]=1, stage[5][6]=1;
             break;
+
         
         case S_MINO:
             stage[4][6]=1, stage[4][7]=1, stage[5][5]=1, stage[5][6]=1;
             break;
 
+
         case Z_MINO:
             stage[4][5]=1, stage[4][6]=1, stage[5][6]=1, stage[5][7]=1;
             break;
+
 
         case J_MINO:
             stage[4][5]=1, stage[4][6]=1, stage[4][7]=1, stage[5][7]=1;
             break;
 
+
         case L_MINO:
             stage[4][5]=1, stage[4][6]=1, stage[4][7]=1, stage[5][5]=1;
             break;
+
 
         case T_MINO:
             stage[4][5]=1, stage[4][6]=1, stage[4][7]=1, stage[5][6]=1;
@@ -387,15 +413,16 @@ int landing (void)
 
 void drop (void)
 {
-    int coordinate[8] = {0,0,0,0,0,0,0,0}, count, d=0;
+    int coordinate[8] = {0,0,0,0,0,0,0,0}, count, downCount=0;
     int dx=0, dy=1;
+
 
     while (1)
     {
         count = 0;
         if (landing ())
         {
-            point += d*10;
+            point += downCount*DROP_POINT;
             break;
         }
 
@@ -420,7 +447,7 @@ void drop (void)
         stage[coordinate[4]][coordinate[5]] = 1;
         stage[coordinate[6]][coordinate[7]] = 1;
 
-        d += 1;
+        downCount += 1;
     }
 }
 
@@ -475,7 +502,7 @@ int turnMino (void)
     int tempWidth=0;
 
 
-    for (int i=0;i<HEIGHT;++i)
+    for (int i=0;i<HEIGHT;++i) // ミノの上下幅の取得
     {
         for (int j=0;j<WIDTH;++j)
         {
@@ -491,18 +518,18 @@ int turnMino (void)
     }
 
 
-    if (maxI-minI > maxJ-minJ) tempWidth = maxI-minI+1;
+
+    if (maxI-minI > maxJ-minJ) tempWidth = maxI-minI+1; // tempStageのサイズの決定
     else tempWidth = maxJ-minJ+1;
 
     int tempStage[tempWidth][tempWidth];
     int tempStageTwo[tempWidth][tempWidth];
 
+    dy = maxI - tempWidth + 1, dx = minJ; // tempStageの[0][0]の位置
 
 
-	dy = maxI - tempWidth + 1, dx = minJ;
 
-    
-    for (int y=0;y<tempWidth;++y)
+    for (int y=0;y<tempWidth;++y) // 回転するミノの部分をtempStageにコピー
     {
         for (int x=0;x<tempWidth;++x)
         {
@@ -510,7 +537,8 @@ int turnMino (void)
         }
     }
 
-    for (int y=0;y<tempWidth;++y)
+
+    for (int y=0;y<tempWidth;++y) // 壁の巻き込みチェック
     {
         for (int x=0;x<tempWidth;++x)
         {
@@ -518,23 +546,51 @@ int turnMino (void)
         }
     }
 
-    for (int y=0;y<tempWidth;++y)
+
+    for (int y=0;y<tempWidth;++y) // tempStageを回転させtempStageTwoにコピー
     {
         for (int x=0;x<tempWidth;++x)
         {
 			tempStageTwo[y][x] = tempStage[tempWidth-1-x][y];
         }
-        std::cout << "\n";
     }
 
 
-    for (int y=0;y<tempWidth;++y)
+    while (1) // 上昇防止
+    {
+        int cnt=0;
+
+        for (int x=0;x<tempWidth;++x)
+        {
+            if (tempStageTwo[tempWidth-1][x] == 1) cnt += 1;
+        }
+
+        if (cnt != 0) break;
+
+        for (int i=tempWidth-1;i>0;--i)
+        {
+            for (int j=0;j<tempWidth;++j)
+            {
+                tempStageTwo[i][j] = tempStageTwo[i-1][j];
+            }
+        }
+
+        for (int j=0;j<tempWidth;++j)
+        {
+            tempStageTwo[0][j] = 0;
+        }
+    }
+
+
+    for (int y=0;y<tempWidth;++y) // tempStageTwoをStageに戻す
     {
         for (int x=0;x<tempWidth;++x)
         {
             stage[y+dy][x+dx] = tempStageTwo[y][x];
         }
     }
+
+
     return 0;
 }
 
@@ -549,4 +605,89 @@ int pow (int x, int y)
     }
 
     return ans;
+}
+
+
+int swapMino (int kind)
+{
+    int dx = 10, dy = 20;
+
+    for (int y=0;y<HEIGHT;++y) // ミノの左上
+    {
+        for (int x=0;x<WIDTH;++x)
+        {
+            if (stage[y][x] == 1)
+            {
+                if(y<dy) dy=y;
+                if(x<dx) dx=x;
+            }
+        }
+    }
+
+
+    int null = 1;
+
+
+    for (int y=0;y<4;++y) // swapが空かどうか
+    {
+        for (int x=0;x<4;++x)
+        {
+            if (swap[y][x] != 0)
+            {
+                null = 0;
+                break;
+            }
+        }
+    }
+
+
+    if (null) // 空のときの動作
+    {
+        for (int y=0;y<4;++y)
+        {
+            for (int x=0;x<4;++x)
+            {
+                swap[y][x] = stage[y+dy][x+dx];
+            }
+        }
+        oneToZero();
+
+        placeMino(kind);
+    }
+
+
+    else
+    {
+        int tempSwap[4][4];
+
+        for (int y=0;y<4;++y) // stageのミノをtempSwapにコピー
+        {
+            for (int x=0;x<4;++x)
+            {
+                tempSwap[y][x] = stage[y+dy][x+dx];
+            }
+        }
+
+
+        oneToZero();
+
+
+        for (int y=0;y<4;++y) // swapの中身をstageにコピー
+        {
+            for (int x=0;x<4;++x)
+            {
+                stage[y+4][x+4] = swap[y][x];
+            }
+        }
+
+
+        for (int y=0;y<4;++y) // tempSwapの中身をswapにコピー
+        {
+            for (int x=0;x<4;++x)
+            {
+                swap[y][x] = tempSwap[y][x];
+            }
+        }
+    }
+    return 0;
 }
